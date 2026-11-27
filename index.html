@@ -898,9 +898,12 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
     editId = k ? k.id : null; xoaLan = 0;
     var q = !!(k && laQuy(k));
     document.querySelectorAll('[name=loai]').forEach(function (r) { r.checked = r.value === (q ? 'quy' : 'chi'); });
-    // Khoản mới: chuyến đã có quỹ chung thì mặc định "Quỹ chung" trả, chưa có quỹ thì mặc định là "Bạn là"
+    // Khoản mới: chọn sẵn người trả lần trước trên máy này (theo từng chuyến);
+    // chưa có thì: chuyến có quỹ → "Quỹ chung", không có quỹ → "Bạn là"
     var coQuy = !!(D.tongKet && D.tongKet.quy && D.tongKet.quy.coDung);
-    var payer = k ? (q ? '' : k.nguoiTra) : (coQuy ? MA_QUY : meMa());
+    var lanTruoc = docJSON('ctdl_payer_map', {})[D.chuyen];
+    if (lanTruoc && lanTruoc !== MA_QUY && !nguoi(lanTruoc)) lanTruoc = '';
+    var payer = k ? (q ? '' : k.nguoiTra) : (lanTruoc || (coQuy ? MA_QUY : meMa()));
     $('kcPayer').innerHTML = '<label class="chip"><input type="radio" name="payer" value="' + MA_QUY + '"' + (payer === MA_QUY ? ' checked' : '') + '><span>' + av(MA_QUY) + 'Quỹ chung</span></label>' + tv().map(function (t) { return '<label class="chip"><input type="radio" name="payer" value="' + esc(t.ma) + '"' + (t.ma === payer ? ' checked' : '') + '><span>' + av(t.ma) + esc(t.ten) + '</span></label>'; }).join('');
     var chia = k ? k.chiaCho : tv().map(function (t) { return t.ma; });
     $('kcChia').innerHTML = tv().map(function (t) { return '<label class="chip"><input type="checkbox" name="chia" value="' + esc(t.ma) + '"' + (chia.indexOf(t.ma) >= 0 ? ' checked' : '') + '><span class="np">' + esc(t.ten) + '</span></label>'; }).join('');
@@ -1011,6 +1014,7 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
     if (!meMa()) { $('sheetKC').classList.remove('open'); capNhatKhoa(); var id0 = editId; return moMe(function () { mo('sheetKC'); editId = id0; luu(); }); }
     var me = meTen();
     var cu = editId ? D.khoanChi.filter(function (x) { return x.id === editId; })[0] : null;
+    if (!cu && kc.kieuChia !== GOP_QUY) { var pm = docJSON('ctdl_payer_map', {}); pm[D.chuyen] = kc.nguoiTra; luuMay('ctdl_payer_map', JSON.stringify(pm)); }
     kc.id = cu ? cu.id : idMoi(); kc.moi = !cu;
     var hienThi = { id: kc.id, chuyen: kc.chuyen, ngay: kc.ngay, noiDung: kc.noiDung || '(không ghi)', nguoiTra: kc.nguoiTra, soTien: kc.soTien,
       chiaCho: kc.chiaCho.slice(), kieuChia: kc.kieuChia, chiTiet: kc.chiTiet, tienGoc: kc.tienGoc, loaiTien: kc.loaiTien || '', tiGia: kc.tiGia, loai: kc.loai || '',
