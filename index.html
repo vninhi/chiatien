@@ -69,6 +69,9 @@ select.in{appearance:none;-webkit-appearance:none;background-image:url("data:ima
 .cat .h{display:flex;align-items:center;gap:10px}.cat .h .n{flex:1;font-weight:600}
 .cat .bar{height:8px;border-radius:4px;background:var(--soft);margin-top:8px;overflow:hidden}.cat .bar i{display:block;height:100%;border-radius:4px}
 .cat .pc{font-size:12px;color:var(--mute);font-weight:600;min-width:3em;text-align:right}
+.pheptinh{display:flex;gap:8px;margin-top:8px}
+.pheptinh button{flex:1;min-height:40px;border:1.5px solid var(--line);border-radius:12px;background:var(--soft);font-size:20px;font-weight:700;color:var(--ink)}
+.pheptinh button.bang{background:var(--ink);color:var(--inv);border-color:var(--ink)}
 .amt small{display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:1px}
 .qbox{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));text-align:center}
 .qbox div{padding:14px 6px;border-left:1px solid var(--line)}.qbox div:first-child{border-left:0}
@@ -223,6 +226,7 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
   </div>
   <label class="f" for="kcTien" id="kcTienLbl">Số tiền</label>
   <div class="money"><input class="in" id="kcTien" inputmode="decimal" placeholder="0" autocomplete="off"><b id="kcDonVi">đ</b></div>
+  <div class="pheptinh" id="kcPT"><button type="button" data-op="+">+</button><button type="button" data-op="-">−</button><button type="button" data-op="*">×</button><button type="button" data-op="/">÷</button><button type="button" class="bang" data-op="=">=</button></div>
   <div id="kcTGBox" hidden>
     <label class="f" for="kcTiGia" id="kcTGLbl">Tỉ giá</label>
     <input class="in" id="kcTiGia" inputmode="decimal" placeholder="VD: 700" autocomplete="off">
@@ -320,7 +324,35 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function so(n) { n = Math.round(Number(n) || 0); return (n < 0 ? '-' : '') + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
   function tien(n) { return so(n) + 'đ'; }
-  function docSo(s) { return parseInt(String(s || '').replace(/[^\d]/g, ''), 10) || 0; }
+  /* Máy tính nhỏ: "1200+100", "=350*3", "(500+250)/3"… Trả về null nếu không phải phép tính, NaN nếu gõ sai. */
+  function laPhepTinh(s) { s = String(s || '').trim(); return /^=/.test(s) || /\d\s*[+\-*/x×÷]/i.test(s) || /^\(/.test(s); }
+  function tinhBieuThuc(s) {
+    s = String(s || '').replace(/^\s*=/, '').replace(/[x×]/gi, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+    var t = s.match(/[\d.,]+|[+\-*/()]/g), i = 0;
+    if (!t || t.join('') !== s) return NaN;
+    function mot() {
+      var x = t[i];
+      if (x === '(') { i++; var v = cong(); if (t[i] !== ')') throw 0; i++; return v; }
+      if (x === '-') { i++; return -mot(); }
+      if (x === '+') { i++; return mot(); }
+      if (!/^[\d.,]+$/.test(x || '')) throw 0;
+      i++; return docSoTho(x);
+    }
+    function nhan() { var v = mot(); while (t[i] === '*' || t[i] === '/') { var o = t[i++], r = mot(); v = o === '*' ? v * r : v / r; } return v; }
+    function cong() { var v = nhan(); while (t[i] === '+' || t[i] === '-') { var o = t[i++], r = nhan(); v = o === '+' ? v + r : v - r; } return v; }
+    try { var v = cong(); return i === t.length && isFinite(v) ? v : NaN; } catch (e) { return NaN; }
+  }
+  /* 1 con số kiểu Việt: "1.500" = 1500, "12,5" hoặc "12.5" = 12,5 */
+  function docSoTho(s) {
+    s = String(s || '').trim();
+    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    var n = parseFloat(s); return isFinite(n) ? n : 0;
+  }
+  function docSo(s) {
+    if (laPhepTinh(s)) { var v = tinhBieuThuc(s); return v > 0 ? Math.round(v) : 0; }
+    return parseInt(String(s || '').replace(/[^\d]/g, ''), 10) || 0;
+  }
   function p2(n) { return ('0' + n).slice(-2); }
   function homNay() { var d = new Date(); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
   var THU = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
@@ -361,6 +393,7 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
   function optTienTe(chon) { return '<option value="">Không – chỉ dùng VNĐ</option>' + TIEN_TE.map(function (t) { return '<option value="' + t[0] + '"' + (t[0] === chon ? ' selected' : '') + '>' + t[0] + ' – ' + t[1] + '</option>'; }).join(''); }
   /* Số có thể lẻ: "1.500" = 1500, "12,5" hoặc "12.5" = 12,5 */
   function docSoThuc(s) {
+    if (laPhepTinh(s)) { var v = tinhBieuThuc(s); return v > 0 ? Math.round(v * 100) / 100 : 0; }
     s = String(s || '').trim().replace(/\s/g, ''); if (!s) return 0;
     if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
     else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
@@ -885,10 +918,17 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
     goiY();
   }
   function docPhan(v) { return ngoai() ? docSoThuc(v) : docSo(v); }
+  /* Gợi ý dưới ô số tiền; ô đang là phép tính thì hiện thêm kết quả "= …" ở đầu */
   function goiY() {
+    goiYNoiDung();
+    var v = $('kcTien').value, t = tongNhap();
+    var kq = ngoai() ? soThuc(t) + ' ' + ngoai() : tien(t), cu = $('kcHint').textContent;
+    if (laPhepTinh(v) && t && cu.indexOf(kq) !== 0) $('kcHint').textContent = '= ' + kq + (cu ? ' · ' + cu : '');
+  }
+  function goiYNoiDung() {
     var h = $('kcHint'), tong = tongNhap(), ds = dsChia(), nt = ngoai(), tg = tiGiaNhap();
     h.className = 'hint';
-    if (!tong) { h.textContent = ''; return; }
+    if (!tong) { h.textContent = laPhepTinh($('kcTien').value) ? 'Phép tính chưa xong…' : ''; return; }
     var doi = nt ? (tg ? ' = ' + tien(Math.round(tong * tg)) : ' (nhập tỉ giá để quy ra VNĐ)') : '';
     if (loai() === 'quy') {
       h.textContent = ds.length ? 'Tổng góp vào quỹ: ' + (nt ? soThuc(tong * ds.length) + ' ' + nt + (tg ? ' = ' + tien(Math.round(tong * tg) * ds.length) : '') : tien(tong * ds.length)) + ' (' + ds.length + ' người)' : 'Chưa chọn ai góp';
@@ -904,7 +944,13 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
     if (Math.abs(con) < 0.005) { h.className = 'hint ok'; h.textContent = '✓ Đã chia khớp ' + f(tong) + dv + doi; }
     else { h.className = 'hint bad'; h.textContent = 'Đã chia ' + f(s) + dv + ' / ' + f(tong) + dv + (con > 0 ? ' — còn thiếu ' + f(con) + dv : ' — dư ' + f(-con) + dv); }
   }
-  function dinhDangO(inp) { if (ngoai()) return; var v = docSo(inp.value); inp.value = v ? so(v) : ''; }
+  function dinhDangO(inp) { if (ngoai() || laPhepTinh(inp.value) || /[+\-*/x×÷(=]$/i.test(inp.value)) return; var v = docSo(inp.value); inp.value = v ? so(v) : ''; }
+  /* Rời ô (hoặc bấm "="): nếu là phép tính thì thay bằng kết quả */
+  function chotO(inp) {
+    var v = inp.value; if (!v) return;
+    if (laPhepTinh(v)) { var r = ngoai() ? docSoThuc(v) : docSo(v); if (r) inp.value = ngoai() ? soThuc(r) : so(r); else { toast('Phép tính chưa đúng, kiểm tra lại nhé'); return; } }
+    else if (ngoai()) { var x = docSoThuc(v); inp.value = x ? soThuc(x) : ''; }
+  }
   function luu() {
     var payer = document.querySelector('[name=payer]:checked'), nt = ngoai(), tg = nt ? tiGiaNhap() : 0;
     var kc = { chuyen: D.chuyen, ngay: $('kcNgay').value || homNay(), noiDung: $('kcND').value.trim(), nguoiTra: payer ? payer.value : '',
@@ -958,8 +1004,20 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
   $('kcNgay').addEventListener('click', function () { try { if (this.showPicker) this.showPicker(); } catch (e) {} });
   $('kcTiGia').oninput = function () { tgDaSua = true; goiY(); };
   // Ngoại tệ: gõ tự do (có số lẻ), rời ô thì tự thêm dấu chấm cho dễ đọc
-  $('kcTien').onblur = function () { if (ngoai()) { var v = docSoThuc(this.value); this.value = v ? soThuc(v) : ''; } };
-  $('kcRieng').addEventListener('focusout', function (e) { if (ngoai() && e.target.dataset.ma) { var v = docSoThuc(e.target.value); e.target.value = v ? soThuc(v) : ''; } });
+  $('kcTien').onblur = function () { chotO(this); if (kieuChia() === CHIA_RIENG && !riengDaSua) veRieng(); goiY(); };
+  $('kcRieng').addEventListener('focusout', function (e) { if (e.target.dataset.ma) { chotO(e.target); goiY(); } });
+  // Hàng nút + − × ÷ = : chèn vào ô đang gõ (ô số tiền, hoặc ô số tiền riêng đang chọn)
+  var oDangGo = null;
+  document.addEventListener('focusin', function (e) { if (e.target.id === 'kcTien' || (e.target.dataset && e.target.dataset.ma)) oDangGo = e.target; });
+  $('kcPT').addEventListener('mousedown', function (e) { e.preventDefault(); });   // giữ bàn phím không bị tắt
+  $('kcPT').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-op]'); if (!b) return;
+    var inp = oDangGo && document.body.contains(oDangGo) ? oDangGo : $('kcTien');
+    if (b.dataset.op === '=') { chotO(inp); } else { inp.value = (inp.value || '') + b.dataset.op; }
+    inp.focus(); try { var n = inp.value.length; inp.setSelectionRange(n, n); } catch (x) {}
+    if (inp.id === 'kcTien' && kieuChia() === CHIA_RIENG && !riengDaSua) veRieng();
+    goiY();
+  });
   $('kcRieng').oninput = function (e) { if (e.target.dataset.ma) { riengDaSua = true; dinhDangO(e.target); goiY(); } };
   $('kcChia').onchange = function () { veRieng(); };
   $('kcPayer').onchange = function () { goiYTiGia(); goiY(); };
