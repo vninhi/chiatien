@@ -836,7 +836,9 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
     editId = k ? k.id : null; xoaLan = 0;
     var q = !!(k && laQuy(k));
     document.querySelectorAll('[name=loai]').forEach(function (r) { r.checked = r.value === (q ? 'quy' : 'chi'); });
-    var payer = k ? (q ? '' : k.nguoiTra) : meMa();
+    // Khoản mới: chuyến đã có quỹ chung thì mặc định "Quỹ chung" trả, chưa có quỹ thì mặc định là "Bạn là"
+    var coQuy = !!(D.tongKet && D.tongKet.quy && D.tongKet.quy.coDung);
+    var payer = k ? (q ? '' : k.nguoiTra) : (coQuy ? MA_QUY : meMa());
     $('kcPayer').innerHTML = '<label class="chip"><input type="radio" name="payer" value="' + MA_QUY + '"' + (payer === MA_QUY ? ' checked' : '') + '><span>' + av(MA_QUY) + 'Quỹ chung</span></label>' + tv().map(function (t) { return '<label class="chip"><input type="radio" name="payer" value="' + esc(t.ma) + '"' + (t.ma === payer ? ' checked' : '') + '><span>' + av(t.ma) + esc(t.ten) + '</span></label>'; }).join('');
     var chia = k ? k.chiaCho : tv().map(function (t) { return t.ma; });
     $('kcChia').innerHTML = tv().map(function (t) { return '<label class="chip"><input type="checkbox" name="chia" value="' + esc(t.ma) + '"' + (chia.indexOf(t.ma) >= 0 ? ' checked' : '') + '><span class="np">' + esc(t.ten) + '</span></label>'; }).join('');
