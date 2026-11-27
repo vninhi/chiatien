@@ -88,6 +88,14 @@ main{padding:0 14px}
 .row .tx{flex:1}
 .row .t1{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row .t2{font-size:13px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row.kc{align-items:flex-start}
+.row.kc>.av{margin-top:2px}
+.row .h1,.row .h2{display:flex;align-items:baseline;gap:10px}
+.row .h1 .t1,.row .h2 .t2{flex:1}
+.row .nt{font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap}
+.ppl{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0 4px}
+.pc{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 2px;border-radius:999px;background:var(--soft);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pc .av{width:22px;height:22px;font-size:11px}
 .row .t3{font-size:12px;color:var(--mute);opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .amt{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
 .pending{opacity:.6}
@@ -664,15 +672,19 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
     return thuTu.map(function (ng) {
       var sum = nhomNgay[ng].reduce(function (a, k) { return a + (laQuy(k) ? 0 : k.soTien); }, 0);
       return '<div class="sec"><span>' + esc(nhanNgay(ng)) + '</span><span>' + tien(sum) + '</span></div><div class="card">' + nhomNgay[ng].map(function (k) {
-        var cach = k.kieuChia === CHIA_RIENG ? 'chia riêng ' + k.chiaCho.length + ' người' : (k.chiaCho.length === tatCa ? 'chia đều cả nhóm' : 'chia đều: ' + k.chiaCho.map(ten).join(', '));
-        var quy = laQuy(k), moiNg = quy && k.chiaCho.length ? k.soTien / k.chiaCho.length : 0;
-        var dong2 = quy ? esc((k.chiaCho.length === tatCa ? 'Cả nhóm góp' : k.chiaCho.map(ten).join(', ') + ' góp') + (k.chiaCho.length > 1 ? ' · mỗi người ' + tien(moiNg) : ''))
-          : '<span class="tag"><i style="background:' + mauLoai(loaiCua(k)) + '"></i>' + esc(loaiCua(k)) + '</span> · ' + esc(ten(k.nguoiTra) + ' trả · ' + cach);
+        var quy = laQuy(k), maTV = tv().map(function (t) { return t.ma; });
+        // Phần của từng người: góp quỹ = số góp; khoản chi = chia đều / số tiền riêng
+        var phan = quy ? (k.chiTiet || {}) : chiaPhan_(k, maTV);
+        var dsPhan = maTV.filter(function (m) { return phan[m] > 0; });
+        var dong2 = quy ? esc(dsPhan.length === tatCa ? 'Cả nhóm góp quỹ' : 'Góp quỹ')
+          : '<span class="tag"><i style="background:' + mauLoai(loaiCua(k)) + '"></i>' + esc(loaiCua(k)) + '</span> · ' + esc(ten(k.nguoiTra) + ' trả · ' + (k.kieuChia === CHIA_RIENG ? 'chia riêng' : 'chia đều'));
         var dang = String(k.lucNhap).indexOf('đang lưu') >= 0 || String(k.lucSua).indexOf('đang lưu') >= 0;
         var log = dang ? 'Đang lưu…' : 'Nhập: ' + k.nguoiNhap + ' · ' + k.lucNhap + (k.nguoiSua ? ' — Sửa: ' + k.nguoiSua + ' · ' + k.lucSua : '');
-        return '<button class="row' + (dang ? ' pending' : '') + '" data-id="' + esc(k.id) + '">' + av(k.nguoiTra) +
-          '<span class="tx"><div class="t1">' + esc(k.noiDung) + '</div><div class="t2">' + dong2 + '</div><div class="t3">' + esc(log) + '</div></span>' +
-          '<span class="amt' + (quy ? ' pos' : '') + '">' + (quy ? '+' : '') + tien(k.soTien) + (k.loaiTien ? '<small>' + esc(soThuc(k.tienGoc) + ' ' + k.loaiTien + ' × ' + tiGiaChu(k.tiGia)) + '</small>' : '') + '</span></button>';
+        var oNguoi = dsPhan.map(function (m) { return '<span class="pc">' + av(m) + so(phan[m]) + '</span>'; }).join('');
+        return '<button class="row kc' + (dang ? ' pending' : '') + '" data-id="' + esc(k.id) + '">' + av(k.nguoiTra) +
+          '<span class="tx"><div class="h1"><span class="t1">' + esc(k.noiDung) + '</span><span class="amt' + (quy ? ' pos' : '') + '">' + (quy ? '+' : '') + tien(k.soTien) + '</span></div>' +
+          '<div class="h2"><span class="t2">' + dong2 + '</span>' + (k.loaiTien ? '<span class="nt">' + esc(soThuc(k.tienGoc) + ' ' + k.loaiTien) + '</span>' : '') + '</div>' +
+          (oNguoi ? '<div class="ppl">' + oNguoi + '</div>' : '') + '<div class="t3">' + esc(log) + '</div></span></button>';
       }).join('') + '</div>';
     }).join('');
   }
