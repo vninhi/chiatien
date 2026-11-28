@@ -135,6 +135,10 @@ main{padding:0 14px}
 .bng .ng .av{width:24px;height:24px;font-size:11px}
 .nhan{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:999px;line-height:1.3;white-space:nowrap;background:var(--soft);color:var(--mute)}
 .nhan.get{background:var(--getBg);color:var(--getInk)}.nhan.pay{background:var(--payBg);color:var(--payInk)}
+.bng tr[data-ng]{cursor:pointer}
+.bng tr[data-ng]:active td{background:var(--soft)}
+#ngTitle{display:flex;align-items:center;gap:10px}
+.xoaRieng{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;margin-top:28px;border:0;border-top:1px solid var(--line);background:none;color:var(--neg);font-weight:700;font-size:15px;padding-top:14px}
 .row .t3{font-size:12px;color:var(--mute);opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .amt{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
 .pending{opacity:.6}
@@ -161,7 +165,7 @@ main{padding:0 14px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 18px;border:0;border-radius:15px;background:var(--coral);color:#fff;font-weight:700}
 .btn.g{background:var(--soft);color:var(--ink)}
 .btn.o{background:var(--card);color:var(--ink);border:1px solid var(--line)}
-.btn.r{background:transparent;color:var(--coral2);border:1.5px solid currentColor}
+.btn.r{background:transparent;color:var(--neg);border:1.5px solid currentColor}
 .btn.w{width:100%}
 .btn:disabled{opacity:.5;cursor:default}
 .link{border:0;background:none;color:var(--sky);font-weight:600;font-size:14px;padding:6px 4px;display:inline-flex;align-items:center;gap:6px}
@@ -352,8 +356,8 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
   </div>
   <label class="f" for="kcNgay">Ngày</label>
   <input class="in" id="kcNgay" type="date">
+  <button class="xoaRieng" id="kcXoa" hidden>Xóa khoản chi này</button>
   <div class="acts">
-    <button class="btn r" id="kcXoa" hidden>Xóa</button>
     <button class="btn g" data-close>Hủy</button>
     <button class="btn" id="kcLuu">Lưu</button>
   </div>
@@ -406,6 +410,15 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
   <h3>Bạn là ai?</h3>
   <p class="sub" id="meSub">Chọn tên của bạn trong chuyến này để ghi lại ai nhập, ai sửa.</p>
   <div class="list" id="meList"></div>
+</div></div>
+
+<!-- Chi tiết 1 người -->
+<div class="sheet" id="sheetNg"><div class="bg" data-close></div><div class="box">
+  <div class="grab"></div>
+  <h3 id="ngTitle"></h3>
+  <p class="sub">Vì sao có số tiền này</p>
+  <div id="ngBody"></div>
+  <div class="acts"><button class="btn g" data-close>Đóng</button></div>
 </div></div>
 
 <div id="toast" role="status"></div>
@@ -832,9 +845,9 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
       '<tr><th>Người</th><th>Đã trả</th><th>Phần mình</th><th>Còn lại</th></tr>' + tk.nguoi.map(function (p) {
       var c = p.conLai, tra = q.coDung ? p.tongBoRa : p.daTra;
       var nhan = c > 0 ? '<span class="nhan get">+' + tien(c) + '</span>' : c < 0 ? '<span class="nhan pay">-' + tien(-c) + '</span>' : '<span class="nhan">0đ</span>';
-      return '<tr><td><span class="ng">' + av(p.ma) + '<span>' + esc(p.ten) + '</span></span></td><td>' + so(tra) + '</td><td>' + so(p.phaiChiu) + '</td><td>' + nhan + '</td></tr>';
+      return '<tr data-ng="' + esc(p.ma) + '"><td><span class="ng">' + av(p.ma) + '<span>' + esc(p.ten) + '</span></span></td><td>' + so(tra) + '</td><td>' + so(p.phaiChiu) + '</td><td>' + nhan + '</td></tr>';
     }).join('') + '</table></div>' +
-      '<div class="tip" style="margin:8px 6px 0">' + (q.coDung ? 'Đã trả = tiền góp quỹ + tiền tự trả riêng. ' : '') + 'Phần mình = tổng phần được chia cho người đó. Còn lại: + là được nhận lại, - là cần trả thêm.</div>';
+      '<div class="tip" style="margin:8px 6px 0">' + (q.coDung ? 'Đã trả = tiền góp quỹ + tiền tự trả riêng. ' : '') + 'Bấm vào từng người để xem chi tiết. Phần mình = tổng phần được chia cho người đó. Còn lại: + là được nhận lại, - là cần trả thêm.</div>';
     return h;
   }
   function veNhom() {
@@ -872,6 +885,40 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
     return h;
   }
 
+
+  /* ---------- Chi tiết 1 người: đã trả gì, phần mình gồm khoản nào, cần chuyển cho ai ---------- */
+  function moNguoi(ma) {
+    var tk = D.tongKet, p = tk.nguoi.filter(function (x) { return x.ma === ma; })[0]; if (!p) return;
+    var maTV = tv().map(function (t) { return t.ma; }), q = tk.quy || {}, tatCa = maTV.length;
+    var ds = D.khoanChi.slice().sort(function (a, b) { return a.ngay < b.ngay ? 1 : a.ngay > b.ngay ? -1 : 0; });
+    var tra = [], phan = [];
+    ds.forEach(function (k) {
+      if (laQuy(k)) { var g = Math.round(Number((k.chiTiet || {})[ma]) || 0); if (g > 0) tra.push({ k: k, v: g, quy: true }); return; }
+      if (k.nguoiTra === ma) tra.push({ k: k, v: k.soTien });
+      var v = chiaPhan_(k, maTV)[ma] || 0;
+      if (v > 0) phan.push({ k: k, v: v });
+    });
+    var tongTra = tra.reduce(function (a, x) { return a + x.v; }, 0);
+    var c = p.conLai;
+    function dong(t1, t2, v, cls) { return '<div class="row" style="cursor:default"><span class="tx"><div class="t1">' + esc(t1) + '</div><div class="t2">' + esc(t2) + '</div></span><span class="amt' + (cls ? ' ' + cls : '') + '">' + tien(v) + '</span></div>'; }
+    var h = '<div class="card" style="margin-top:12px"><div class="qbox"><div><small>Đã trả</small><b>' + tien(tongTra) + '</b></div><div><small>Phần mình</small><b>' + tien(p.phaiChiu) + '</b></div><div><small>Còn lại</small><b class="' + (c > 0 ? 'pos' : c < 0 ? 'neg' : '') + '">' + (c > 0 ? '+' : '') + tien(c) + '</b></div></div></div>';
+    h += '<div class="tip" style="margin:8px 4px 0">Còn lại = Đã trả − Phần mình' + (c > 0 ? ' → được nhận lại.' : c < 0 ? ' → cần trả thêm.' : ' → vừa đủ.') + '</div>';
+    var ck = tk.chuyenKhoan.filter(function (x) { return x.tu === ma || x.den === ma; });
+    if (ck.length) h += '<div class="sec"><span>Chuyển khoản</span></div><div class="card">' + ck.map(function (x) {
+      return x.tu === ma ? dong('Chuyển cho ' + ten(x.den), 'cần trả', x.soTien, 'neg') : dong(ten(x.tu) + ' chuyển cho bạn', 'được nhận', x.soTien, 'pos');
+    }).join('') + '</div>';
+    h += '<div class="sec"><span>Đã trả · ' + tra.length + ' khoản</span><span>' + tien(tongTra) + '</span></div><div class="card">' + (tra.length ? tra.map(function (x) {
+      return dong(x.quy ? 'Góp quỹ: ' + x.k.noiDung : x.k.noiDung, nhanNgay(x.k.ngay) + (x.k.loaiTien ? ' · ' + soThuc(x.k.tienGoc) + ' ' + x.k.loaiTien : ''), x.v);
+    }).join('') : '<div class="empty" style="padding:18px">Chưa trả khoản nào</div>') + '</div>';
+    h += '<div class="sec"><span>Phần mình · ' + phan.length + ' khoản</span><span>' + tien(p.phaiChiu) + '</span></div><div class="card">' + (phan.length ? phan.map(function (x) {
+      var k = x.k, n = k.chiaCho.length;
+      return dong(k.noiDung, (k.nguoiTra === MA_QUY ? 'Quỹ' : ten(k.nguoiTra)) + ' trả ' + tien(k.soTien) + ' · ' + (k.kieuChia === CHIA_RIENG ? 'riêng' : (n === tatCa ? 'chia cả nhóm' : 'chia ' + n + ' người')), x.v);
+    }).join('') : '<div class="empty" style="padding:18px">Không có phần nào</div>') + '</div>';
+    if (q.coDung && !q.tongGop) h += '<div class="warn">Chưa có khoản góp quỹ nào nên app coi như quỹ chung đang ứng tiền cho cả nhóm. Nếu mọi người đã góp tiền mặt vào quỹ, thêm khoản “Góp quỹ chung” để số liệu đúng.</div>';
+    $('ngTitle').innerHTML = av(ma) + ' ' + esc(p.ten);
+    $('ngBody').innerHTML = h;
+    mo('sheetNg');
+  }
   /* ---------- Bảng trượt ---------- */
   /* Khi mở bảng: khóa trang phía sau để không bị trôi (iPhone), đóng hết bảng thì mở khóa và về đúng chỗ cũ */
   var cuonCu = 0;
@@ -1056,7 +1103,7 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
     doiLoai();
     veRieng(ct);
     $('kcTitle').textContent = k ? (q ? 'Sửa khoản góp quỹ' : 'Sửa khoản chi') : (q ? 'Góp quỹ chung' : 'Thêm khoản chi');
-    $('kcXoa').hidden = !k; $('kcXoa').textContent = 'Xóa';
+    $('kcXoa').hidden = !k; $('kcXoa').textContent = 'Xóa khoản chi này';
     var dangLuu = k && (String(k.lucNhap).indexOf('đang lưu') >= 0 || String(k.lucSua).indexOf('đang lưu') >= 0);
     $('kcLog').toggleAttribute('hidden', !k);
     if (k) $('kcLog').textContent = dangLuu ? 'Đang lưu…' : 'Nhập: ' + (k.nguoiNhap || '?') + ' · ' + k.lucNhap + (k.nguoiSua ? ' — Sửa: ' + k.nguoiSua + ' · ' + k.lucSua : '');
@@ -1194,7 +1241,7 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
   $('kcAll').onclick = function () { var b = document.querySelectorAll('[name=chia]'), all = Array.prototype.every.call(b, function (i) { return i.checked; }); b.forEach(function (i) { i.checked = !all; }); veRieng(); };
   $('kcLuu').onclick = luu;
   $('kcXoa').onclick = function () {
-    if (Date.now() - xoaLan > 3000) { xoaLan = Date.now(); this.textContent = 'Bấm lần nữa để xóa'; return; }
+    if (Date.now() - xoaLan > 3000) { xoaLan = Date.now(); this.textContent = 'Bấm lần nữa để xóa hẳn'; return; }
     var id = editId, me = meTen() || 'Không rõ';
     var item = Object.assign({}, D.khoanChi.filter(function (x) { return x.id === id; })[0] || { id: id, chuyen: D.chuyen });
     item.chuyen = D.chuyen; item.nguoiSua = me; item.lucSua = 'vừa xong';
@@ -1266,6 +1313,7 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
     $('nhTGLbl').textContent = 'Tỉ giá tham khảo: 1 ' + nhom.nt + ' = ? đồng';
   });
   $('main').onclick = function (e) {
+    var ng = e.target.closest('[data-ng]'); if (ng) return moNguoi(ng.dataset.ng);
     var t = e.target.closest('button'); if (!t) return;
     if (t.dataset.loc != null) { locLoai = t.dataset.loc; ve(); return; }
     if (t.dataset.kp) { var it = (D.daXoa || []).filter(function (x) { return x.id === t.dataset.kp; })[0]; if (it) { khoiPhuc(Object.assign({}, it, { chuyen: D.chuyen })); } return; }
