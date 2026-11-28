@@ -122,13 +122,26 @@ main{padding:0 14px}
 .loc.coTong button.on::before{left:-17.5px;background:radial-gradient(circle at 0 0,transparent 15.5px,var(--ink) 16px)}
 .loc.coTong button.on::after{right:-17.5px;background:radial-gradient(circle at 100% 0,transparent 15.5px,var(--ink) 16px)}
 .loc.coTong+.tongLoc{margin-top:0}
+:root{--neg:#c92a2a;--getBg:#EAF3DE;--getInk:#27500A;--payBg:#FCEBEB;--payInk:#791F1F}
+@media(prefers-color-scheme:dark){:root{--neg:#ff8787;--getBg:#1f3312;--getInk:#b7dd8a;--payBg:#3a1616;--payInk:#ffb3b3}}
+.bng{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px;font-variant-numeric:tabular-nums}
+.bng th{font-size:11.5px;font-weight:600;color:var(--mute);text-align:right;white-space:nowrap;padding:10px 6px 8px;border-bottom:1px solid var(--line)}
+.bng td{text-align:right;padding:10px 6px;border-top:1px solid var(--line)}
+.bng tr:nth-child(2) td{border-top:0}
+.bng th:first-child,.bng td:first-child{text-align:left;padding-left:12px}
+.bng th:last-child,.bng td:last-child{padding-right:12px}
+.bng .ng{display:flex;align-items:center;gap:6px;font-weight:600;overflow:hidden}
+.bng .ng span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bng .ng .av{width:24px;height:24px;font-size:11px}
+.nhan{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:999px;line-height:1.3;white-space:nowrap;background:var(--soft);color:var(--mute)}
+.nhan.get{background:var(--getBg);color:var(--getInk)}.nhan.pay{background:var(--payBg);color:var(--payInk)}
 .row .t3{font-size:12px;color:var(--mute);opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .amt{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
 .pending{opacity:.6}
 .empty{padding:34px 22px;text-align:center;color:var(--mute)}
 .empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}
 .warn{background:var(--coralSoft);color:var(--coral2);border-radius:14px;padding:11px 14px;font-size:14px;margin-top:12px}
-.pos{color:var(--sky)}.neg{color:var(--coral2)}
+.pos{color:var(--sky)}.neg{color:var(--neg)}
 /* Tổng kết */
 .tr{display:flex;align-items:center;gap:10px;padding:14px 16px;border-top:1px solid var(--line)}
 .tr:first-child{border-top:0}
@@ -814,13 +827,14 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
           '<div class="bar"><i style="width:' + (v / lon * 100).toFixed(1) + '%;background:' + l.c + '"></i></div></div>';
       }).join('') + '</div>';
     }
-    var mx = Math.max(1, Math.max.apply(null, tk.nguoi.map(function (p) { return Math.abs(p.conLai); })));
-    h += '<div class="sec"><span>Từng người</span><span>dư / thiếu</span></div><div class="card">' + tk.nguoi.map(function (p) {
-      var c = p.conLai, w = (Math.abs(c) / mx * 100).toFixed(1) + '%';
-      return '<div class="bal"><div class="h">' + av(p.ma) + '<span class="n">' + esc(p.ten) + '</span><span class="amt ' + (c > 0 ? 'pos' : c < 0 ? 'neg' : '') + '">' + (c > 0 ? '+' : '') + tien(c) + '</span></div>' +
-        '<div class="dv"><span class="l">' + (c < 0 ? '<i style="width:' + w + '"></i>' : '') + '</span><span class="r">' + (c > 0 ? '<i style="width:' + w + '"></i>' : '') + '</span></div>' +
-        '<div class="d">' + (q.coDung ? 'Góp quỹ ' + tien(p.gopQuy) + ' + Trả riêng ' + tien(p.daTra) + ' = Đã bỏ ra ' + tien(p.tongBoRa) : 'Đã trả ' + tien(p.daTra)) + ' · Phải chịu ' + tien(p.phaiChiu) + ' · ' + (c > 0 ? 'được nhận lại' : c < 0 ? 'cần trả thêm' : 'vừa đủ') + '</div></div>';
-    }).join('') + '</div>';
+    // Bảng từng người: Đã trả (gồm góp quỹ) | Phần mình | Còn lại (nhãn Được nhận / Cần trả)
+    h += '<div class="sec"><span>Từng người</span></div><div class="card"><table class="bng"><colgroup><col style="width:23%"><col style="width:22%"><col style="width:22%"><col style="width:33%"></colgroup>' +
+      '<tr><th>Người</th><th>Đã trả</th><th>Phần mình</th><th>Còn lại</th></tr>' + tk.nguoi.map(function (p) {
+      var c = p.conLai, tra = q.coDung ? p.tongBoRa : p.daTra;
+      var nhan = c > 0 ? '<span class="nhan get">+' + tien(c) + '</span>' : c < 0 ? '<span class="nhan pay">-' + tien(-c) + '</span>' : '<span class="nhan">0đ</span>';
+      return '<tr><td><span class="ng">' + av(p.ma) + '<span>' + esc(p.ten) + '</span></span></td><td>' + so(tra) + '</td><td>' + so(p.phaiChiu) + '</td><td>' + nhan + '</td></tr>';
+    }).join('') + '</table></div>' +
+      '<div class="tip" style="margin:8px 6px 0">' + (q.coDung ? 'Đã trả = tiền góp quỹ + tiền tự trả riêng. ' : '') + 'Phần mình = tổng phần được chia cho người đó. Còn lại: + là được nhận lại, - là cần trả thêm.</div>';
     return h;
   }
   function veNhom() {
