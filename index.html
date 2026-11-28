@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="xanhbien">
 <head>
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f2542d">
+<meta name="theme-color" content="#CFE4F7">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Chia tiền">
 <title>Chia tiền du lịch</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -109,9 +109,19 @@ main{padding:0 14px}
 .l2 .lc{font-weight:600;color:var(--ink)}
 .row.kc2 .h2{align-items:center}
 .row.kc2 .nt{margin-top:4px}
-.tongLoc{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:14px 0 0;padding:12px 16px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);font-weight:700}
-.tongLoc small{font-size:13px;font-weight:500;color:var(--mute)}
-.tongLoc b{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tongLoc{display:flex;align-items:center;gap:12px;margin:14px 0 0;padding:14px 16px;background:var(--ink);color:var(--inv);border-radius:18px}
+.tongLoc .ti{width:38px;height:38px;border-radius:11px;background:rgba(127,127,127,.28);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.tongLoc .tt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.tongLoc .tl{font-weight:700;font-size:15px}
+.tongLoc small{font-size:12.5px;opacity:.7}
+.tongLoc b{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.loc.coTong{padding-bottom:0}
+.loc.coTong button{margin-bottom:10px}
+.loc.coTong button.on{margin-bottom:0;padding-bottom:10px;min-height:48px;border-radius:19px 19px 0 0;position:relative}
+.loc.coTong button.on::before,.loc.coTong button.on::after{content:'';position:absolute;bottom:-1.5px;width:17.5px;height:16px;pointer-events:none}
+.loc.coTong button.on::before{left:-17.5px;background:radial-gradient(circle at 0 0,transparent 15.5px,var(--ink) 16px)}
+.loc.coTong button.on::after{right:-17.5px;background:radial-gradient(circle at 100% 0,transparent 15.5px,var(--ink) 16px)}
+.loc.coTong+.tongLoc{margin-top:0}
 .row .t3{font-size:12px;color:var(--mute);opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .amt{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
 .pending{opacity:.6}
@@ -206,6 +216,59 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
 @keyframes sk{to{background-position:-200% 0}}
 .foot{text-align:center;margin:18px 0 0}
 .tip{font-size:13px;color:var(--mute);line-height:1.55}
+/* Tông màu pastel (chỉ áp dụng khi máy để giao diện sáng) */
+@media (prefers-color-scheme:light){
+html[data-theme=dao]{--bg:#FFF7F3;--coral:#D85A30;--coral2:#D85A30;--coralSoft:#FFE9E1}
+html[data-theme=dao] .top{background:#FFD9CC;color:#712B13}
+html[data-theme=dao] .pill,html[data-theme=dao] .me,html[data-theme=dao] .quyChip{background:#FFE9E1;color:#712B13}
+html[data-theme=dao] .me .av{background:#fff;color:#D85A30}
+html[data-theme=dao] .avs .av{border-color:#FFD9CC}
+html[data-theme=dao] .loc button.on{background:#F5C4B3;border-color:#F5C4B3;color:#4A1B0C}
+html[data-theme=dao] .tongLoc{background:#F5C4B3;color:#4A1B0C}
+html[data-theme=dao] .loc.coTong button.on::before{background:radial-gradient(circle at 0 0,transparent 15.5px,#F5C4B3 16px)}
+html[data-theme=dao] .loc.coTong button.on::after{background:radial-gradient(circle at 100% 0,transparent 15.5px,#F5C4B3 16px)}
+html[data-theme=dao] .fab{background:#F0997B;color:#4A1B0C;box-shadow:0 8px 20px #F0997B88}
+html[data-theme=bacha]{--bg:#F3FBF8;--coral:#0F6E56;--coral2:#0F6E56;--coralSoft:#E1F5EE}
+html[data-theme=bacha] .top{background:#C9EEDF;color:#085041}
+html[data-theme=bacha] .pill,html[data-theme=bacha] .me,html[data-theme=bacha] .quyChip{background:#E1F5EE;color:#085041}
+html[data-theme=bacha] .me .av{background:#fff;color:#0F6E56}
+html[data-theme=bacha] .avs .av{border-color:#C9EEDF}
+html[data-theme=bacha] .loc button.on{background:#9FE1CB;border-color:#9FE1CB;color:#04342C}
+html[data-theme=bacha] .tongLoc{background:#9FE1CB;color:#04342C}
+html[data-theme=bacha] .loc.coTong button.on::before{background:radial-gradient(circle at 0 0,transparent 15.5px,#9FE1CB 16px)}
+html[data-theme=bacha] .loc.coTong button.on::after{background:radial-gradient(circle at 100% 0,transparent 15.5px,#9FE1CB 16px)}
+html[data-theme=bacha] .fab{background:#5DCAA5;color:#04342C;box-shadow:0 8px 20px #5DCAA588}
+html[data-theme=oaihuong]{--bg:#F7F6FE;--coral:#534AB7;--coral2:#534AB7;--coralSoft:#EEEDFE}
+html[data-theme=oaihuong] .top{background:#DCD8FA;color:#3C3489}
+html[data-theme=oaihuong] .pill,html[data-theme=oaihuong] .me,html[data-theme=oaihuong] .quyChip{background:#EEEDFE;color:#3C3489}
+html[data-theme=oaihuong] .me .av{background:#fff;color:#534AB7}
+html[data-theme=oaihuong] .avs .av{border-color:#DCD8FA}
+html[data-theme=oaihuong] .loc button.on{background:#CECBF6;border-color:#CECBF6;color:#26215C}
+html[data-theme=oaihuong] .tongLoc{background:#CECBF6;color:#26215C}
+html[data-theme=oaihuong] .loc.coTong button.on::before{background:radial-gradient(circle at 0 0,transparent 15.5px,#CECBF6 16px)}
+html[data-theme=oaihuong] .loc.coTong button.on::after{background:radial-gradient(circle at 100% 0,transparent 15.5px,#CECBF6 16px)}
+html[data-theme=oaihuong] .fab{background:#AFA9EC;color:#26215C;box-shadow:0 8px 20px #AFA9EC88}
+html[data-theme=xanhbien]{--bg:#F3F8FD;--coral:#185FA5;--coral2:#185FA5;--coralSoft:#E6F1FB}
+html[data-theme=xanhbien] .top{background:#CFE4F7;color:#0C447C}
+html[data-theme=xanhbien] .pill,html[data-theme=xanhbien] .me,html[data-theme=xanhbien] .quyChip{background:#E6F1FB;color:#0C447C}
+html[data-theme=xanhbien] .me .av{background:#fff;color:#185FA5}
+html[data-theme=xanhbien] .avs .av{border-color:#CFE4F7}
+html[data-theme=xanhbien] .loc button.on{background:#B5D4F4;border-color:#B5D4F4;color:#042C53}
+html[data-theme=xanhbien] .tongLoc{background:#B5D4F4;color:#042C53}
+html[data-theme=xanhbien] .loc.coTong button.on::before{background:radial-gradient(circle at 0 0,transparent 15.5px,#B5D4F4 16px)}
+html[data-theme=xanhbien] .loc.coTong button.on::after{background:radial-gradient(circle at 100% 0,transparent 15.5px,#B5D4F4 16px)}
+html[data-theme=xanhbien] .fab{background:#85B7EB;color:#042C53;box-shadow:0 8px 20px #85B7EB88}
+html[data-theme=trasua]{--bg:#FBF7F1;--coral:#8A5A44;--coral2:#8A5A44;--coralSoft:#F3E7D9}
+html[data-theme=trasua] .top{background:#E8D5BF;color:#4E3420}
+html[data-theme=trasua] .pill,html[data-theme=trasua] .me,html[data-theme=trasua] .quyChip{background:#F3E7D9;color:#4E3420}
+html[data-theme=trasua] .me .av{background:#fff;color:#8A5A44}
+html[data-theme=trasua] .avs .av{border-color:#E8D5BF}
+html[data-theme=trasua] .loc button.on{background:#DCC4A8;border-color:#DCC4A8;color:#3A2617}
+html[data-theme=trasua] .tongLoc{background:#DCC4A8;color:#3A2617}
+html[data-theme=trasua] .loc.coTong button.on::before{background:radial-gradient(circle at 0 0,transparent 15.5px,#DCC4A8 16px)}
+html[data-theme=trasua] .loc.coTong button.on::after{background:radial-gradient(circle at 100% 0,transparent 15.5px,#DCC4A8 16px)}
+html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 20px #C8A27F88}
+}
 </style>
 </head>
 <body>
@@ -340,6 +403,7 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
   var API_URL = 'https://script.google.com/macros/s/AKfycbzoYD4aVaUxlQXQ6Oe2p7WhxAlj0udclT2SYMrS1eo0xGdkjxyqhO9Pip8qFFZEeK4Abw/exec';
 
   var $ = function (id) { return document.getElementById(id); };
+  try { var tm = localStorage.getItem('ctdl_theme'); if (tm) document.documentElement.setAttribute('data-theme', tm); } catch (e) {}
   var CHIA_RIENG = 'Số tiền riêng', CHIA_DEU = 'Chia đều';
   var D = null, tab = 'list', editId = null, xoaLan = 0, xoaChuyenLan = 0, riengDaSua = false, tcMoi = [], nhom = null;
   var hang = [], dangChay = false, dangTai = false, lucCapNhat = '', meCho = null;
@@ -676,7 +740,15 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
     $('quyChip').toggleAttribute('hidden', !q.coDung);
     if (q.coDung) { var qn = quyNT(); $('quyChip').innerHTML = av(MA_QUY) + '<span>' + (q.conLai >= 0 ? 'Quỹ chung còn ' + tien(q.conLai) : 'Quỹ chung âm ' + tien(-q.conLai)) + (qn ? '<small style="display:block;font-size:12px;opacity:.9;font-weight:500">' + esc(chuNT(Math.abs(qn.con), qn)) + '</small>' : '') + '</span>'; }
     $('heroAvs').innerHTML = tv().slice(0, 8).map(function (t) { return av(t.ma); }).join('') + (tv().length > 8 ? '<span class="av" style="background:rgba(0,0,0,.25)">+' + (tv().length - 8) + '</span>' : '');
+    var locCu = document.querySelector('.loc'), cuonLoc = locCu ? locCu.scrollLeft : 0;
     $('main').innerHTML = tab === 'list' ? veDS() : tab === 'sum' ? veTK(tk) : veNhom();
+    var locMoi = document.querySelector('.loc');
+    if (locMoi) {
+      locMoi.scrollLeft = cuonLoc;
+      var on = locMoi.querySelector('.on');
+      if (on && (on.offsetLeft < locMoi.scrollLeft || on.offsetLeft + on.offsetWidth > locMoi.scrollLeft + locMoi.clientWidth))
+        locMoi.scrollLeft = on.offsetLeft - (locMoi.clientWidth - on.offsetWidth) / 2;
+    }
   }
   function veDS() {
     var loc = '';
@@ -685,12 +757,14 @@ label.f{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:16
       var dem = {}; coChi.forEach(function (k) { var l = loaiCua(k); dem[l] = (dem[l] || 0) + 1; });
       var co = LOAI.filter(function (l) { return dem[l.t]; });
       if (locLoai && !dem[locLoai]) locLoai = '';
-      if (co.length > 1) loc = '<div class="loc"><button data-loc=""' + (locLoai ? '' : ' class="on"') + '>Tất cả</button>' + co.map(function (l) { return '<button data-loc="' + esc(l.t) + '"' + (locLoai === l.t ? ' class="on"' : '') + '><i style="background:' + l.c + '"></i>' + esc(l.t) + ' ' + dem[l.t] + '</button>'; }).join('') + '</div>';
+      if (co.length > 1) loc = '<div class="loc' + (locLoai ? ' coTong' : '') + '"><button data-loc=""' + (locLoai ? '' : ' class="on"') + '>Tất cả</button>' + co.map(function (l) { return '<button data-loc="' + esc(l.t) + '"' + (locLoai === l.t ? ' class="on"' : '') + '><i style="background:' + l.c + '"></i>' + esc(l.t) + ' ' + dem[l.t] + '</button>'; }).join('') + '</div>';
       else locLoai = '';
     }
+    var tk0 = coChi.reduce(function (a, k) { return a + k.soTien; }, 0);
     var dsTong = coChi.filter(function (k) { return !locLoai || loaiCua(k) === locLoai; });
     var tongLoc = dsTong.reduce(function (a, k) { return a + k.soTien; }, 0);
-    var dongTong = coChi.length ? '<div class="tongLoc"><span>Tổng ' + esc(locLoai || 'chi tiêu') + ' <small>· ' + dsTong.length + ' khoản</small></span><b>-' + tien(tongLoc) + '</b></div>' : '';
+    var dongTong = coChi.length && locLoai ? '<div class="tongLoc"><span class="ti">' + (locLoai ? iconLoai(locLoai) : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg>') + '</span>' +
+      '<span class="tt"><span class="tl">Tổng ' + esc(locLoai || 'chi tiêu') + '</span><small>' + dsTong.length + ' khoản' + (locLoai && tk0 ? ' · ' + Math.round(tongLoc / tk0 * 100) + '% tổng chi' : '') + '</small></span><b>-' + tien(tongLoc) + '</b></div>' : '';
     return loc + dongTong + veDSLoc();
   }
   function veDSLoc() {
