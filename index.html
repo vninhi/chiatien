@@ -748,7 +748,7 @@ html[data-theme=trasua] .fab{background:#C8A27F;color:#3A2617;box-shadow:0 8px 2
     var tk = D.tongKet, n = tv().length || 1;
     $('heroLbl').textContent = 'Tổng chi tiêu';
     $('tong').textContent = tien(tk.tong);
-    $('perHead').textContent = '≈ ' + tien(tk.tong / n) + '/người · ' + soKhoanChi() + ' khoản' + (D.ngoaiTe ? ' · 1 ' + D.ngoaiTe.ma + ' ≈ ' + tiGiaChu(D.ngoaiTe.tiGia) + 'đ' : '');
+    $('perHead').textContent = soKhoanChi() + ' khoản' + (D.ngoaiTe ? ' · 1 ' + D.ngoaiTe.ma + ' ≈ ' + tiGiaChu(D.ngoaiTe.tiGia) + 'đ' : '');
     var q = tk.quy || {};
     $('quyChip').toggleAttribute('hidden', !q.coDung);
     if (q.coDung) { var qn = quyNT(); $('quyChip').innerHTML = av(MA_QUY) + '<span>' + (q.conLai >= 0 ? 'Quỹ chung còn ' + tien(q.conLai) : 'Quỹ chung âm ' + tien(-q.conLai)) + (qn ? '<small style="display:block;font-size:12px;opacity:.9;font-weight:500">' + esc(chuNT(Math.abs(qn.con), qn)) + '</small>' : '') + '</span>'; }
